@@ -1,30 +1,31 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def solve_transformation():
-    n = len(p_original)
+
+def solve_transformation(original, transformed):
+    n = len(original)
 
     # A matrix and B vector
     A = np.zeros((2 * n, 4))
     B = np.zeros(2 * n)
 
     for i in range(n):
-        x, y = p_original[i]
-        x_target, y_target = p_target[i]
+        x, y = original[i]
+        x_transformed, y_transformed = transformed[i]
 
-        # For x' = s*(x*cos(θ) - y*sin(θ)) + Tx
+        # x' = s*(x*cos(rot) - y*sin(rot)) + Tx
         A[2 * i, 0] = 1  # coeff for Tx
         A[2 * i, 1] = 0  # coeff for Ty
-        A[2 * i, 2] = x  # coeff for s*cos(θ)
-        A[2 * i, 3] = -y  # coeff for s*sin(θ)
-        B[2 * i] = x_target  # x' value
+        A[2 * i, 2] = x  # coeff for s*cos(rot)
+        A[2 * i, 3] = -y  # coeff for s*sin(rot)
+        B[2 * i] = x_transformed  # x' value
 
-        # For y' = s*(x*sin(θ) + y*cos(θ)) + Ty
+        # y' = s*(x*sin(rot) + y*cos(rot)) + Ty
         A[2 * i + 1, 0] = 0  # coeff for Tx
         A[2 * i + 1, 1] = 1  # coeff for Ty
-        A[2 * i + 1, 2] = y  # coeff for s*cos(θ)
-        A[2 * i + 1, 3] = x  # coeff for s*sin(θ)
-        B[2 * i + 1] = y_target  # y' value
+        A[2 * i + 1, 2] = y  # coeff for s*cos(rot)
+        A[2 * i + 1, 3] = x  # coeff for s*sin(rot)
+        B[2 * i + 1] = y_transformed  # y' value
 
     # least squared diff
     # (A^T * A) * X = A^T * B
@@ -52,7 +53,6 @@ def transform_points(points, Tx, Ty, s, rot):
     transformed = s * np.dot(points, rotation_matrix.T) + np.array([Tx, Ty])
     return transformed
 
-
 if __name__ == '__main__':
     # original points
     p_original = np.array([[1, 4],
@@ -64,8 +64,8 @@ if __name__ == '__main__':
                         [5, 5],
                         [-6, 3.3]])
 
-    # target points
-    p_target = np.array([[-1.26546, 3.222386],
+    # transformed points
+    p_transformed = np.array([[-1.26546, 3.222386],
                             [-4.53286, 0.459128],
                             [-1.64771, 3.831308],
                             [-2.57985, 2.283247],
@@ -76,25 +76,26 @@ if __name__ == '__main__':
 
 
     # solve transformation to find optimal parameters
-    Tx_opt, Ty_opt, s_opt, rot_opt = solve_transformation()
+    Tx_opt, Ty_opt, s_opt, rot_opt = solve_transformation(p_original, p_transformed)
 
     # results
-    print(f"Optimal Translation: Tx = {Tx_opt}, Ty = {Ty_opt}")
-    print(f"Optimal Scale: s = {s_opt}")
-    print(f"Optimal Rotation: rot = {rot_opt} radians ({rot_opt * 180 / np.pi} degrees)")
+    print(f"Optimal Translation (Tx, Ty): {Tx_opt}, {Ty_opt}")
+    print(f"Optimal Scale (s): {s_opt}")
+    print(f"Optimal Rotation (rot): {rot_opt * 180 / np.pi} degrees ({rot_opt} radians)")
 
     # apply tranformation to all points
-    p_transformed = transform_points(p_original, Tx_opt, Ty_opt, s_opt, rot_opt)
+    p_estimated = transform_points(p_original, Tx_opt, Ty_opt, s_opt, rot_opt)
 
     # calculate noise
-    residuals = p_target - p_transformed
+    residuals = p_transformed - p_estimated
     residual_distances = np.sqrt(np.sum(residuals ** 2, axis=1))
     noise_std = np.std(residual_distances)
     print(f"Calculated noise: {noise_std}")
 
-    # calculate mean squared error
-    mse = np.mean(np.sum((p_transformed - p_target) ** 2, axis=1))
-    print(f"Mean squared error: {mse}")
+    # calculate mean error
+    point_errors = np.sqrt(np.sum((p_estimated - p_transformed) ** 2, axis=1))
+    mean_error = np.mean(point_errors)
+    print(f"Mean error: {mean_error:.4f}")
 
     # transformation matrix
     transformation_matrix = np.array([
@@ -108,8 +109,8 @@ if __name__ == '__main__':
 
     # plotting
     plt.scatter(p_original[:, 0], p_original[:, 1], color='blue', label='Original Points (Pi)')
-    plt.scatter(p_target[:, 0], p_target[:, 1], color='darkorange', label='Target Points (P\'i)')
-    plt.scatter(p_transformed[:, 0], p_transformed[:, 1], color='green', marker='x',
+    plt.scatter(p_transformed[:, 0], p_transformed[:, 1], color='darkorange', label='Transformed Points (P\'i)')
+    plt.scatter(p_estimated[:, 0], p_estimated[:, 1], color='green', marker='x',
                 label='Transformed Points with Estimated Parameters')
 
     plt.grid(True, alpha=0.3)
