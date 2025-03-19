@@ -33,12 +33,11 @@ where:
 The solution is based on the **least squares method**, which minimizes the error in transformation estimation. 
 \
 Transformation equations:
-$$
-x' = s * (x * cos(rot) - y * sin(rot)) + Tx 
-$$
-$$
-y' = s * (x * sin(rot) + y * cos(rot)) + Ty
-$$
+
+$$x' = s * (x * cos(rot) - y * sin(rot)) + Tx$$
+
+$$y' = s * (x * sin(rot) + y * cos(rot)) + Ty$$
+
 Rewriting this system in matrix form:
 
 $$
@@ -61,9 +60,7 @@ $$
 
 For all given points, we construct a large matrix **A** and a vector **B** with the target coordinates:
 
-$$
-A \cdot X = B
-$$
+$$A \cdot X = B$$
 
 where:
 - A is a 16 * 4  matrix containing coefficients.
@@ -74,17 +71,14 @@ where:
 
 To determine the unknowns, we apply the **least squares solution**:
 
-$$
-(A^T  A)  X = A^T  B
-$$
-$$
-X = (A^T A)^{-1} A^T B
-$$
+$$(A^T  A)  X = A^T  B$$
+
+$$X = (A^T A)^{-1} A^T B$$
 
 where:
 - $A^T A$ forms a square matrix from the system of equations.
 - $A^T B$ is the product of the transposed coefficient matrix with the target values.
-- **NumPy’s `np.linalg.solve`** function is used to solve for **X**.
+- **NumPy’s `np.linalg.solve`** function is used to solve for X.
 
 ---
 
@@ -94,19 +88,13 @@ The transformation parameters can now be extracted:
 
 - **Translation**:
 
-  $
-  T_x = X[0], \quad T_y = X[1]
-  $
+  $T_x = X[0], \quad T_y = X[1]$
 
 - **Rotation and Scaling**:
 
-  $
-  s = \sqrt{X[2]^2 + X[3]^2}
-  $
+  $s = \sqrt{X[2]^2 + X[3]^2}$
 
-  $
-  rot = \arctan2(X[3], X[2])
-  $
+  $rot = \arctan2(X[3], X[2])$
 
 ---
 
@@ -114,9 +102,7 @@ The transformation parameters can now be extracted:
 
 The estimated transformation is applied to the original points using:
 
-$
-P'_{estimated} = s \cdot R \cdot P + T
-$
+$P'_{estimated} = s \cdot R \cdot P + T$
 
 ## Results
 ![Transformation](transformation_plot.png)
@@ -133,3 +119,7 @@ Transformation Matrix:
  [-0.10355431  0.53906389  1.12951073]
  [ 0.          0.          1.        ]]
 ```
+
+## Used Libraries
+- **NumPy**: For numerical operations.
+- **Matplotlib**: For plotting the results.
