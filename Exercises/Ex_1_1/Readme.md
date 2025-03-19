@@ -50,8 +50,7 @@ T_x \\
 T_y \\
 s \cos(rot) \\
 s \sin(rot)
-\end{bmatrix}
-=
+\end{bmatrix} =
 \begin{bmatrix}
 x' \\
 y'
