@@ -48,9 +48,21 @@ while True:
     maxVal = np.max(cumulatedFrame)
     avgVal = np.average(cumulatedFrame)
     print("iter " + str(frameCount) + " max= " + str(maxVal) + " avg= " + str(avgVal))
-
     avgFrame = avgFrame.astype('uint8')
-
     cv2.imshow('AvgFrame', avgFrame)
+
+    diffFrame = (avgFrame - frameCopy).astype('int8')
+    diffFrame = np.abs(diffFrame)
+    diffFrame = diffFrame.astype('uint8')
+    cv2.imshow('DiffFrame', diffFrame)
+    blueImg = diffFrame[:, :, 0]
+    greenImg = diffFrame[:, :, 1]
+    redImg = diffFrame[:, :, 2]
+    threshold = 30
+    segmentedImgIdx = np.where((blueImg > threshold) | (greenImg > threshold) | (redImg > threshold))
+
+    binaryResImg = frameCopy.copy()
+    binaryResImg[segmentedImgIdx] = 255
+    cv2.imshow('Binary Frame', binaryResImg)
 
     keyboard = cv2.waitKey(delayInMS)
