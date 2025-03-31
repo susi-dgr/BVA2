@@ -9,7 +9,7 @@ undistorted using the obtained parameters.
 ## Implementation
 ### Setup
 - The pattern is choosen using the `Patterntype`: `CHESSBOARD` or `CIRCLES_GRID`.
-- The visualization type can also be choosen using the `VisualizationType`: `VECTOR_FIELD`, `HEATMAP`, `CHECKERBOARD`
+- The visualization type can also be choosen using the `VisualizationType`: `VECTOR_FIELD`, `HEATMAP`, `CHECKERBOARD`; I did all three, since I wanted to see which one highlighted the changes best. (I think heatmap is the best one, but the other ones look nice too.)
 
 ### Image Collection
 - A series of images are taken.
@@ -29,7 +29,7 @@ undistorted using the obtained parameters.
     - Checkerboard: This method blends the original and undistorted images to highlight the changes, making the corrections visible
 
 ## Results
-### Camera 1 (Webcam)
+### Camera 1 (external camera)
 #### Chessboard
 ```
 pattern found
@@ -407,3 +407,64 @@ Visualization with Heatmap: \
 
 Visualization with Checkerboard: \
 <img src="Camera2/CircleGrid/img3.png_checkerboard_diff.png" alt="Checkerboard Visualization" height="300">
+
+## Pattern Comparison 
+- The chessboard pattern seems to be more robust for the calibration compared to the circle grid pattern, since th corner detection is more accurate and consistent.
+
+## Camera Comparison (with chessboard pattern)
+### Calibration Error 
+- The first camera has a calibration error of 0.2644, while the second camera has a calibration error of 0.4471.
+- -> the calibration of the first camera is more accurate than the second camera.
+
+### Intrinsic Parameters (Camera Matrix)
+- The camera matrix of the first camera is:
+```
+[[435.11559873   0.         315.76084058]
+ [  0.         436.25840529 236.57679327]
+ [  0.           0.           1.        ]]
+```
+- The camera matrix of the second camera is:
+```
+[[601.87250276   0.         325.07911905]
+ [  0.         603.09453457 208.19971987]
+ [  0.           0.           1.        ]]
+```
+Focal Length:
+- The first camera has a focal length of 435.1156 in the x direction and 436.2584, which is lower than the second camera's focal length of 601.8725 in the x direction and 603.0945 in the y direction.
+- this indicates that the first camera has a wider field of view than the second camera.
+
+Optical Center:
+- The optical center of the first camera is at (315.7608, 236.5768), while the second camera's optical center is at (325.0791, 208.1997).
+
+### Lens Distortion
+- The first camera has a lens distortion of:
+```
+[[ 1.03305087e-01  1.44183297e-01  2.05561877e-04 -1.57766282e-03  -7.52931384e-01]]
+```
+- The second camera has a lens distortion of:
+```
+[[-0.04843625 -0.03125308 -0.00300784  0.00363086  0.1520879 ]]
+```
+- The values of the first camera are overall higher than the second camera, indicating that the first camera has a higher distortion than the second camera.
+
+### Extrinsic Parameters
+- The rotation and translation vectors of the first camera (and chosen image) are:
+```
+rvec = [[-0.04658767], [-0.00188421], [-1.57731481]]
+tvec = [[-4.59683576], [2.70787105], [10.74574093]]
+
+```
+
+- The rotation and translation vectors of the second camera (and chosen image) are:
+```
+rvec = [[-0.04988001], [0.03000733], [-1.5662192]]
+tvec = [[-3.88958729], [4.06923927], [15.27536998]]
+```
+
+- Both vector are rather similar, but the translation vector of the second camera is higher in the z direction, indicating that the second camera is further away from the chessboard pattern than the first camera.
+
+## Used Libraries
+- OpenCV: for camera calibration and image processing
+- NumPy: for numerical operations and array manipulations
+- time: to wait between frames
+- enum: for defining enumerations for the pattern and visualization types
