@@ -468,3 +468,6 @@ tvec = [[-3.88958729], [4.06923927], [15.27536998]]
 - NumPy: for numerical operations and array manipulations
 - time: to wait between frames
 - enum: for defining enumerations for the pattern and visualization types
+
+## Note
+All test images are located in the `Camera1` and `Camera2` folders.
