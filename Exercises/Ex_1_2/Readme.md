@@ -217,3 +217,193 @@ Visualization with Heatmap: \
 Visualization with Checkerboard: \
 <img src="Camera1/CircleGrid/img1.png_checkerboard_diff.png" alt="Checkerboard Visualization" height="300">
 
+### Camera2 (integrated camera)
+#### Chessboard
+```
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+CAMERA CALIBRATED!!! ERR=0.447134568808251
+Camera matrix : 
+
+[[601.87250276   0.         325.07911905]
+ [  0.         603.09453457 208.19971987]
+ [  0.           0.           1.        ]]
+lens distortion : 
+
+[[-0.04843625 -0.03125308 -0.00300784  0.00363086  0.1520879 ]]
+extrinsic positions for ALL detected shapes
+ROTATION rvecs : 
+
+(array([[-0.04988001],
+       [ 0.03000733],
+       [-1.5662192 ]]), array([[-0.03922926],
+       [ 0.02953717],
+       [-1.56436141]]), array([[-0.04870359],
+       [-0.02169235],
+       [-1.54693716]]), array([[-0.05684983],
+       [-0.01286214],
+       [-1.56493841]]), array([[-0.06103718],
+       [ 0.03835695],
+       [-1.54834413]]), array([[ 0.18118593],
+       [ 0.28785182],
+       [-1.50041477]]), array([[ 0.40638718],
+       [ 0.26794562],
+       [-1.62212263]]), array([[ 0.19395814],
+       [-0.08141337],
+       [-1.82351562]]), array([[-0.2344778 ],
+       [-0.16674378],
+       [-1.49588408]]), array([[-0.28735316],
+       [ 0.02171034],
+       [-1.22621736]]))
+TRANSLATION tvecs : 
+
+(array([[-3.88958729],
+       [ 4.06923927],
+       [15.27536998]]), array([[-3.82000233],
+       [ 3.92614095],
+       [15.16656203]]), array([[-3.95705288],
+       [ 3.88950841],
+       [13.30816445]]), array([[-3.78914865],
+       [ 4.24102103],
+       [11.91168094]]), array([[-3.70840355],
+       [ 3.85103943],
+       [14.57317501]]), array([[-3.6914817 ],
+       [ 3.69734996],
+       [16.92806255]]), array([[-4.05413576],
+       [ 4.75240625],
+       [16.43464926]]), array([[-3.70599935],
+       [ 4.96243774],
+       [15.86718144]]), array([[-3.97867523],
+       [ 3.19636583],
+       [16.65338764]]), array([[-3.61230365],
+       [ 1.7866056 ],
+       [17.53942151]]))
+```
+
+For the following image the rotation vector is: \
+`rvec = [[-0.04988001], [0.03000733], [-1.5662192]]` \
+and the translation vector is: \
+`tvec = [[-3.88958729], [4.06923927], [15.27536998]]`
+
+The calibration was successful with an error of 0.447134568808251.
+
+Original Image: \
+<img src="Camera2/Chessboard/img1.png" alt="Chessboard Image" height="300">
+
+Image with corners detected: \
+<img src="Camera2/Chessboard/imgCB1.png" alt="Chessboard Corners" height="300">
+
+Calibration Results: \
+<img src="Camera2/Chessboard/img1.png_calibresult.png" alt="Calibration Results" height="300">
+
+Visualization with Vector Field: \
+<img src="Camera2/Chessboard/img1.png_vector_field.png" alt="Vector Field Visualization" height="300">
+
+Visualization with Heatmap: \
+<img src="Camera2/Chessboard/img1.png_heatmap.png" alt="Heatmap Visualization" height="300">
+
+Visualization with Checkerboard: \
+<img src="Camera2/Chessboard/img1.png_checkerboard_diff.png" alt="Checkerboard Visualization" height="300">
+
+#### Circle Grid
+```
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+pattern found
+camera calibration FAILED!! ERR=19.991159006992504
+Camera matrix : 
+
+[[7.20716883e+03 0.00000000e+00 3.82231601e+02]
+ [0.00000000e+00 1.37937407e+04 2.38445145e+02]
+ [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+lens distortion : 
+
+[[ 4.19372899e+01 -1.50477181e+04 -7.72230653e-01  4.61191148e-02
+  -6.37182035e+01]]
+extrinsic positions for ALL detected shapes
+ROTATION rvecs : 
+
+(array([[0.19203171],
+       [0.35936983],
+       [1.56015668]]), array([[0.18514357],
+       [0.36756583],
+       [1.56284286]]), array([[0.15356902],
+       [0.44749274],
+       [1.58760421]]), array([[0.1904703 ],
+       [0.33588236],
+       [1.56160626]]), array([[0.14189261],
+       [0.41144649],
+       [1.58801055]]), array([[0.04594312],
+       [0.56826748],
+       [1.63262951]]), array([[-0.01768579],
+       [ 0.78009202],
+       [ 1.70672518]]), array([[0.03266459],
+       [1.14424791],
+       [1.86603306]]), array([[-0.03964599],
+       [-0.85981671],
+       [ 1.71555909]]), array([[-0.75755253],
+       [-0.05527337],
+       [ 1.24810283]]))
+TRANSLATION tvecs : 
+
+(array([[  3.44424224],
+       [ -1.10739392],
+       [140.05831179]]), array([[  3.45143809],
+       [ -1.12334034],
+       [138.47536566]]), array([[  3.44970518],
+       [ -1.02653926],
+       [151.40949487]]), array([[  3.33345539],
+       [ -1.22980648],
+       [174.33079823]]), array([[  3.52037726],
+       [ -1.28316865],
+       [193.76117086]]), array([[  3.40285633],
+       [ -1.22379758],
+       [189.2846702 ]]), array([[  3.20318502],
+       [ -0.75497833],
+       [176.95130908]]), array([[  2.94301582],
+       [ -0.34373368],
+       [149.72883812]]), array([[  3.23701077],
+       [ -0.63732354],
+       [174.28134717]]), array([[  1.80492803],
+       [ -1.93817278],
+       [178.02023219]]))
+```
+For the following image the rotation vector is: \
+`rvec = [[0.15356902], [0.44749274], [1.58760421]]` \
+and the translation vector is: \
+`tvec = [[3.44970518], [-1.02653926], [151.40949487]]`
+
+The calibration failed since the error is 19.991159006992504.
+
+Original Image: \
+<img src="Camera2/CircleGrid/img3.png" alt="Circle Grid Image" height="300">
+
+Image with corners detected: \
+<img src="Camera2/CircleGrid/imgCB3.png" alt="Circle Grid Corners" height="300">
+
+Calibration Results: \
+<img src="Camera2/CircleGrid/img3.png_calibresult.png" alt="Calibration Results" height="300">
+
+Visualization with Vector Field: \
+<img src="Camera2/CircleGrid/img3.png_vector_field.png" alt="Vector Field Visualization" height="300">
+
+Visualization with Heatmap: \
+<img src="Camera2/CircleGrid/img3.png_heatmap.png" alt="Heatmap Visualization" height="300">
+
+Visualization with Checkerboard: \
+<img src="Camera2/CircleGrid/img3.png_checkerboard_diff.png" alt="Checkerboard Visualization" height="300">
