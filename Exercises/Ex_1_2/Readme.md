@@ -109,22 +109,22 @@ and the translation vector is: \
 The calibration was successful with an error of 0.2644292422306969.
 
 Original Image: \
-![img3.png](Camera1/Chessboard/img3.png)
+<img src="Camera1/Chessboard/img3.png" alt="Chessboard Image" height="300">
 
 Image with corners detected: \
-![imgCB3.png](Camera1/Chessboard/imgCB3.png)
+<img src="Camera1/Chessboard/imgCB3.png" alt="Chessboard Corners" height="300">
 
 Calibration Results: \
-![img3.png_calibresult.png](Camera1/Chessboard/img3.png_calibresult.png)
+<img src="Camera1/Chessboard/img3.png_calibresult.png" alt="Calibration Results" height="300">
 
 Visualization with Vector Field: \
-![img3.png_vector_field.png](Camera1/Chessboard/img3.png_vector_field.png)
+<img src="Camera1/Chessboard/img3.png_vector_field.png" alt="Vector Field Visualization" height="300">
 
 Visualization with Heatmap: \
-![img3.png_heatmap.png](Camera1/Chessboard/img3.png_heatmap.png)
+<img src="Camera1/Chessboard/img3.png_heatmap.png" alt="Heatmap Visualization" height="300">
 
 Visualization with Checkerboard: \
-![img3.png_checkerboard.png](Camera1/Chessboard/img3.png_checkerboard_diff.png)
+<img src="Camera1/Chessboard/img3.png_checkerboard_diff.png" alt="Checkerboard Visualization" height="300">
 
 
 #### Circle Grid
@@ -200,20 +200,20 @@ Unfortunately, the calibration failed since the error is 17.99214836244936. The 
 not as robust as the chessboard pattern.
 
 Original Image: \
-![img1.png](Camera1/CircleGrid/img1.png)
+<img src="Camera1/CircleGrid/img3.png" alt="Circle Grid Image" height="300">
 
 Image with corners detected: \
-![imgCG1.png](Camera1/CircleGrid/imgCB1.png)
+<img src="Camera1/CircleGrid/img3.png" alt="Circle Grid Corners" height="300">
 
 Calibration Results: \
-![img1.png_calibresult.png](Camera1/CircleGrid/img1.png_calibresult.png)
+<img src="Camera1/CircleGrid/img3.png_calibresult.png" alt="Calibration Results" height="300">
 
 Visualization with Vector Field: \
-![img1.png_vector_field.png](Camera1/CircleGrid/img1.png_vector_field.png)
+<img src="Camera1/CircleGrid/img3.png_vector_field.png" alt="Vector Field Visualization" height="300">
 
 Visualization with Heatmap: \
-![img1.png_heatmap.png](Camera1/CircleGrid/img1.png_heatmap.png)
+<img src="Camera1/CircleGrid/img3.png_heatmap.png" alt="Heatmap Visualization" height="300">
 
 Visualization with Checkerboard: \
-![img1.png_checkerboard.png](Camera1/CircleGrid/img1.png_checkerboard_diff.png)
+<img src="Camera1/CircleGrid/img3.png_checkerboard_diff.png" alt="Checkerboard Visualization" height="300">
 
