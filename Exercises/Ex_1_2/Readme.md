@@ -200,20 +200,20 @@ Unfortunately, the calibration failed since the error is 17.99214836244936. The 
 not as robust as the chessboard pattern.
 
 Original Image: \
-<img src="Camera1/CircleGrid/img3.png" alt="Circle Grid Image" height="300">
+<img src="Camera1/CircleGrid/img1.png" alt="Circle Grid Image" height="300">
 
 Image with corners detected: \
-<img src="Camera1/CircleGrid/img3.png" alt="Circle Grid Corners" height="300">
+<img src="Camera1/CircleGrid/imgCB1.png" alt="Circle Grid Corners" height="300">
 
 Calibration Results: \
-<img src="Camera1/CircleGrid/img3.png_calibresult.png" alt="Calibration Results" height="300">
+<img src="Camera1/CircleGrid/img1.png_calibresult.png" alt="Calibration Results" height="300">
 
 Visualization with Vector Field: \
-<img src="Camera1/CircleGrid/img3.png_vector_field.png" alt="Vector Field Visualization" height="300">
+<img src="Camera1/CircleGrid/img1.png_vector_field.png" alt="Vector Field Visualization" height="300">
 
 Visualization with Heatmap: \
-<img src="Camera1/CircleGrid/img3.png_heatmap.png" alt="Heatmap Visualization" height="300">
+<img src="Camera1/CircleGrid/img1.png_heatmap.png" alt="Heatmap Visualization" height="300">
 
 Visualization with Checkerboard: \
-<img src="Camera1/CircleGrid/img3.png_checkerboard_diff.png" alt="Checkerboard Visualization" height="300">
+<img src="Camera1/CircleGrid/img1.png_checkerboard_diff.png" alt="Checkerboard Visualization" height="300">
 
