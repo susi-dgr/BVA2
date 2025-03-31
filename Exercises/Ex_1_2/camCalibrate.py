@@ -5,17 +5,44 @@
 
 import cv2
 import numpy as np
-import os
-import glob
 import time
+from enum import Enum
 
-CHECKERBOARD_TYPE = "CHECKERBOARD"
-CIRCLE_GRID_TYPE = "CIRCLE_GRID"
+def checkerboard_overlay(original, undistorted, square_size=20):
+    """
+    Creates a checkerboard overlay of two images
+    """
+    h, w = original.shape[:2]
+    checkerboard = np.zeros_like(original)
 
-pattern_type = CIRCLE_GRID_TYPE
+    for y in range(0, h, square_size):
+        for x in range(0, w, square_size):
+            if (x // square_size + y // square_size) % 2 == 0:
+                checkerboard[y:y+square_size, x:x+square_size] = original[y:y+square_size, x:x+square_size]
+            else:
+                checkerboard[y:y+square_size, x:x+square_size] = undistorted[y:y+square_size, x:x+square_size]
+
+    return checkerboard
+
+
+class PatternType(Enum):
+    CHECKERBOARD = 1
+    CIRCLE_GRID = 2
+
+class VisualizationType(Enum):
+    VECTOR_FIELD = 1
+    HEATMAP = 2
+    CHECKERBOARD_DIFF = 3
+    ALL = 4
+
+# Pattern Type
+pattern_type = PatternType.CIRCLE_GRID
+
+# Visualization Type
+visualization_type = VisualizationType.ALL
 
 # Defining the dimensions of checkerboard
-if pattern_type == CHECKERBOARD_TYPE:
+if pattern_type == PatternType.CHECKERBOARD:
     CHECKERBOARD = (6, 9)
 else:
     CHECKERBOARD = (4, 11)
@@ -49,26 +76,10 @@ frameCount = 0
 # Setup SimpleBlobDetector parameters.
 blobParams = cv2.SimpleBlobDetector_Params()
 
-# Thresholds for better blob detection
-blobParams.minThreshold = 5
-blobParams.maxThreshold = 250
-
 # Filter by Area (size of blobs)
 blobParams.filterByArea = True
-blobParams.minArea = 100   # Detect smaller blobs
-blobParams.maxArea = 6000  # Prevent filtering out valid large blobs
-
-# Filter by Circularity (ensures round blobs)
-blobParams.filterByCircularity = True
-blobParams.minCircularity = 0.7
-
-# Filter by Convexity (ensures smooth blobs)
-blobParams.filterByConvexity = True
-blobParams.minConvexity = 0.9
-
-# Filter by Inertia (prevents elongated detections)
-blobParams.filterByInertia = True
-blobParams.minInertiaRatio = 0.4
+blobParams.minArea = 100
+blobParams.maxArea = 6000
 
 # Create a detector with the parameters
 blobDetector = cv2.SimpleBlobDetector_create(blobParams)
@@ -80,12 +91,12 @@ while frameCount < numOfFrames:
 
     frameCopy = frame.copy()
     gray = cv2.cvtColor(frameCopy, cv2.COLOR_BGR2GRAY)
-    filePathToWrite = outFilePath + 'img' + str(frameCount) + ".png"
+    filePathToWrite = outFilePath + 'img' + str(frameCount + 1) + ".png"
     cv2.imwrite(filePathToWrite, frameCopy)
     frameCount = frameCount + 1
     # Find the chess board corners
     # If desired number of corners are found in the image then ret = true
-    if pattern_type == CHECKERBOARD_TYPE:
+    if pattern_type == PatternType.CHECKERBOARD:
         ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD,
                                                     cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
     else:
@@ -147,31 +158,52 @@ Performing Undistortion
 and drawing Vector field
 """
 
-images = glob.glob(outFilePath + 'img[0-9].png')
+images = [outFilePath + f'img{i}.png' for i in range(1, 11)]
 
 for fname in images:
     img = cv2.imread(fname)
     h, w = img.shape[:2]
 
     # undistort
-    dst = cv2.undistort(img, mtx, dist, None, mtx)
+    undistorted = cv2.undistort(img, mtx, dist, None, mtx)
 
     # save img
-    cv2.imwrite(fname + '_calibresult.png', dst)
+    cv2.imwrite(fname + '_calibresult.png', undistorted)
 
-    # Visualization of the distortion by vector field
-    map_x, map_y = cv2.initUndistortRectifyMap(mtx, dist, None, mtx, (w, h), cv2.CV_32FC1)
+    if visualization_type == VisualizationType.VECTOR_FIELD:
+        map_x, map_y = cv2.initUndistortRectifyMap(mtx, dist, None, mtx, (w, h), cv2.CV_32FC1)
+        step = 15
+        for y in range(0, h, step):
+            for x in range(0, w, step):
+                original = (x, y)
+                distorted = (int(map_x[y, x]), int(map_y[y, x]))
+                cv2.arrowedLine(img, original, distorted, (0, 0, 255), 1, tipLength=0.2)
+        cv2.imwrite(fname + '_vector_field.png', img)
 
-    step = 10  # step size for the vector field
-    for y in range(0, h, step):
-        for x in range(0, w, step):
-            # Get the original and distorted pixel positions
-            original = (x, y)
-            distorted = (int(map_x[y, x]), int(map_y[y, x]))
+    elif visualization_type == VisualizationType.HEATMAP:
+        diff = cv2.absdiff(img, undistorted)
+        heatmap = cv2.applyColorMap(diff, cv2.COLORMAP_JET)
+        cv2.imwrite(fname + '_heatmap.png', heatmap)
 
-            # Draw the vectors line
-            cv2.arrowedLine(img, original, distorted, (0, 0, 255), 1, tipLength=0.4)
+    elif visualization_type == VisualizationType.CHECKERBOARD_DIFF:
+        checkerboard_result = checkerboard_overlay(img, undistorted)
+        cv2.imwrite(fname + '_checkerboard_diff.png', checkerboard_result)
 
-    cv2.imwrite(fname + '_calibresult_vectors.png', img)
+    else:
+        diff = cv2.absdiff(img, undistorted)
+        heatmap = cv2.applyColorMap(diff, cv2.COLORMAP_JET)
+        cv2.imwrite(fname + '_heatmap.png', heatmap)
+
+        checkerboard_result = checkerboard_overlay(img, undistorted)
+        cv2.imwrite(fname + '_checkerboard_diff.png', checkerboard_result)
+
+        map_x, map_y = cv2.initUndistortRectifyMap(mtx, dist, None, mtx, (w, h), cv2.CV_32FC1)
+        step = 15
+        for y in range(0, h, step):
+            for x in range(0, w, step):
+                original = (x, y)
+                distorted = (int(map_x[y, x]), int(map_y[y, x]))
+                cv2.arrowedLine(img, original, distorted, (0, 0, 255), 1, tipLength=0.2)
+        cv2.imwrite(fname + '_vector_field.png', img)
 
 
