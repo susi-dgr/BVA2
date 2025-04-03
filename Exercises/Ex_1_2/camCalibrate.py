@@ -37,7 +37,7 @@ class VisualizationType(Enum):
     ALL = 4
 
 # Pattern Type
-pattern_type = PatternType.CIRCLE_GRID
+pattern_type = PatternType.CHECKERBOARD
 
 # Visualization Type
 visualization_type = VisualizationType.ALL
@@ -62,7 +62,7 @@ prev_img_shape = None
 
 # Extracting path of individual image stored in a given directory
 outFilePath = "img\\"
-numOfFrames = 10  # frames to record
+numOfFrames = 50  # frames to record
 timeDelayInSecs = 0.8 # delay between frames
 
 inVideoPath = 0
