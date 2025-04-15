@@ -1,14 +1,14 @@
 # Ball Detection and Segmentation
 ## Aim
-The aim of this project is to evaluate how accurately an object detector (YOLO) can localize a sports ball, 
-using its predicted bounding box center as an estimate of the tennis ball's centroid.
+The aim of this project is to evaluate how accurately an object detector (YOLO) can localize a tennis ball, 
+using its predicted bounding box center as an estimate of the tennis ball's center.
 Since object detectors do not always place bounding boxes exactly centered over the object, 
-the project investigates whether segmentation within the bounding box can provide a more precise estimate of the ball’s centroid.
+the project investigates whether segmentation within the bounding box can provide a more precise estimate of the ball’s center.
 
 ## Implementation
 ### Object Detection with YOLO11n
-- Yolo11 is the newest generation of the YOLO object detection algorithm in the Ultralytics library. (Source: https://docs.ultralytics.com/de/models/yolo11/)
-- With ` model.predict(img_path, classes=[32])` only the class 32 (= sports ball) is detected. (Source: https://docs.ultralytics.com/de/datasets/detect/coco/)
+- YOLO11 is the newest generation of the YOLO object detection algorithm in the Ultralytics library. (Source: [https://docs.ultralytics.com/de/models/yolo11/](https://docs.ultralytics.com/de/models/yolo11/))
+- With ` model.predict(img_path, classes=[32])` only the class 32 (= sports ball) is detected. (Source: [https://docs.ultralytics.com/de/datasets/detect/coco/](https://docs.ultralytics.com/de/datasets/detect/coco/))
 
 ### Simple Color-Based Segmentation
 - The segmentation is done by using a simple color-based approach with a color range that fits most images.
@@ -38,7 +38,31 @@ The following statistics are calculated (the distances between the center of the
 - Histogram of the center distances
 - Scatter plot of the center points
 
+<div style="page-break-after: always;"></div>
+
 ## Results
+### Example 1: 
+![img.png](img/good2_seg.png)
+![img_1.png](img/good2.png)
+
+<div style="page-break-after: always;"></div>
+
+### Example 2: (Disclaimer: I did not find a good tennis match image, where the ball was slightly covered)
+The differences between the bounding box center and the segmented circle center are quite large here.
+This is because part of the ball is covered by the dogs mouth, which makes the bounding box and its center inaccurate.
+In this case the segmentation mask and its center are more accurate.
+![img.png](good1_seg.png)
+![img.png](good1.png)
+
+<div style="page-break-after: always;"></div>
+
+### Example 3:
+![img_2.png](img/good3_seg.png)
+![img_3.png](img/good3.png)
+
+<div style="page-break-after: always;"></div>
+
+### Statistics
 ```
 --- Center Analysis ---
 Number of tennis balls analyzed: 12
@@ -48,27 +72,15 @@ Mean distance: 2.91 pixels
 Std deviation: 2.55 pixels
 ```
 
-Example 1: 
-![img.png](img/good2_seg.png)
-![img_1.png](img/good2.png)
-
-Example 2: (Disclaimer: I did not find a good tennis match image, where the ball was slightly covered)\
-The differences between the bounding box center and the segmented circle center are quite large here.
-This is because part of the ball is covered by the dogs mouth, which makes the bounding box and its center inaccurate.
-In this case the segmentation mask and its center are more accurate.
-![img.png](good1_seg.png)
-![img.png](good1.png)
-
-Example 3:
-![img_2.png](img/good3_seg.png)
-![img_3.png](img/good3.png)
-
-
+### Histogram of the center distances
 ![img.png](img/histo.png)
 
+<div style="page-break-after: always;"></div>
+
+### Scatter plot of the center points
 ![img.png](img/scatter.png)
 
-
+<div style="page-break-after: always;"></div>
 
 ## Limitations
 ### Color
@@ -80,6 +92,8 @@ For example, in this image, the tennis ball is exposed to a very bright light an
 This results in the bounding box center being clearly more accurate than the segmentation center.
 <img src="img/too_bright_seg.png" width="700">
 
+<div style="page-break-after: always;"></div>
+
 ### Shape
 Another aspect that could be improved is determining the shape of the ball. With the current implementation the tennis ball 
 is detected as a circle, but in reality it is often more oval (e.g. due to motion blur, deformation, etc.).
@@ -90,18 +104,21 @@ In this image the tennis ball is clearly more oval than round.
 Therefore, the segmentation mask would be better if it would be more oval as well.
 <img src="img/oval_seg.png" width="700">
 
+<div style="page-break-after: always;"></div>
+
 ### Resolution
 The distance is currently calculated in pixels. This means that the values are resolution-dependent and 
 therefore not directly comparable between images with different resolutions. 
-A distance of for example 10 pixels in a low-resolution image may represent a much larger real-world shift 
+A distance of 10 pixels in a low-resolution image may represent a much larger real-world shift 
 than the same 10 pixels in a high-resolution image.
 
 ## Source
 Some images were taken from the COCO dataset: \
-https://cocodataset.org/#explore
+[https://cocodataset.org/#explore](https://cocodataset.org/#explore)
 
 Other images were taken from the Open Images dataset: \
-https://storage.googleapis.com/openimages/web/visualizer/index.html?type=detection&set=train&c=%2Fm%2F05ctyq
+[https://storage.googleapis.com/openimages/web/visualizer/index.html?type=detection&set=train&c=%2Fm%2F05ctyq](https://storage.googleapis.com/openimages/web/visualizer/index.html?type=detection&set=train&c=%2Fm%2F05ctyq)
+
 
 ## Used Linaries
 - OpenCV: for image processing 
