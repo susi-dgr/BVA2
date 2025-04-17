@@ -1,7 +1,7 @@
 # Ball Detection and Segmentation
 ## Aim
 The aim of this project is to evaluate how accurately an object detector (YOLO) can localize a tennis ball, 
-using its predicted bounding box center as an estimate of the tennis ball's center.
+using its bounding box center as an estimate of the tennis ball's center.
 Since object detectors do not always place bounding boxes exactly centered over the object, 
 the project investigates whether segmentation within the bounding box can provide a more precise estimate of the ball’s center.
 
@@ -17,12 +17,12 @@ the project investigates whether segmentation within the bounding box can provid
     <img src="img/lower_yellow.png" width="300">
   - `upper_yellow = np.array([100, 255, 255])` \
     <img src="img/upper_yellow.png" width="300"> 
-- The mask is then created by using the `cv2.inRange()` function, which creates a binary mask.
+- The mask is then created by using the `cv2.inRange()` function, which creates a binary mask where the pixels within the specified color range are set to 255 (white) and all other pixels are set to 0 (black).
 
 ### Ball Detection and Center Distance Calculation
 - With `cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)` the contours of the ball are calculated. `RETR_EXTERNAL` is used to only get the outer contours and `CHAIN_APPROX_SIMPLE` is used to compress the contour points.
 - Since the segmentation does not always return a perfect circle (e.g. when the ball is partly hidden), `cv2.minEnclosingCircle()` is used to get the smallest enclosing circle of the contour.
-- The circle mask is created for visualization purposes.
+- The circle mask is created.
 - After calculating the center of the bounding box and the center of the segmented circle, the distance between the two centers is calculated using the Euclidean distance formula.
 
 ### Visualization
