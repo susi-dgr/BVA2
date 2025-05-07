@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 # Laden des Bildes
 image = cv2.imread("img/lena_small.jpg", cv2.IMREAD_GRAYSCALE)
+image = cv2.imread("img/cameraman.jpg", cv2.IMREAD_GRAYSCALE)
 
 # Berechnung der 2D-Fourier-Transformation
 f_transform = np.fft.fft2(image)
@@ -12,7 +13,7 @@ f_transform_shifted = np.fft.fftshift(f_transform)
 # Berechnung der spektralen Dichte
 magnitude_spectrum = 20 * np.log(np.abs(f_transform_shifted))
 magnitude_spectrum = np.log(np.abs(f_transform_shifted))
-magnitude_spectrum = np.abs(f_transform_shifted)
+#magnitude_spectrum = np.abs(f_transform_shifted)
 
 # Anzeigen des Originalbildes und der spektralen Dichte
 plt.figure(figsize=(12, 6))
