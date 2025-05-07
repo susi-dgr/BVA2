@@ -10,8 +10,8 @@ sr.setModel("edsr", 4)  # EDSR model with scale factor 4
 # Load the input image
 # image = cv2.imread("img/tripod_small.png")
 # imageOrig = cv2.imread("img/tripod.png")
-image = cv2.imread("img/trikot_small.jpg")
-imageOrig = cv2.imread("img/trikot.jpg")
+image = cv2.imread("img/lena_small.jpg")
+imageOrig = cv2.imread("img/lena.jpg")
 
 # Apply super-resolution
 result = sr.upsample(image)
