@@ -69,23 +69,48 @@ def getAccumulationBuffer(inImg, minThresh):
     global accBuffWidth
     global radiusHelperArr
     accumulationBuffer = np.zeros((accBuffHeight, accBuffWidth), dtype='float32')
-    
-    #TODO implementation required    
-               
-    print('accumulation buffer calculated')            
+
+    countFG = 0
+    for y in range(0, inImgHeight):
+        for x in range(0, inImgWidth):
+            edgeVal = inImg[x][y]
+            if edgeVal > minThresh:
+                countFG += 1
+                # draw each of these positions as sinusoidal curve in param space
+                for degreeIdx in range(0, accBuffWidth):
+                    # calculate the radius
+                    rad = (degreeIdx * math.pi) / 180.0
+                    sinVal = math.sin(rad)
+                    cosVal = math.cos(rad)
+                    # now calculate radius from angle via polar coordinate formula
+                    radiusIdx = int(x * cosVal + y * sinVal + 0.5)
+                    if radiusIdx >= 1.0:
+                        accumulationBuffer[radiusIdx][degreeIdx] += 1.0
+
+
+    print('accumulation buffer calculated with #FG = ' + str(countFG) + " ratio = " + str(countFG / (inImgWidth * inImgHeight)))
     return accumulationBuffer
       
  
 def findMaximaInHoughSpace(accumulationBuffer) :  
   global accBuffHeight
-  global accBuffWidth 
+  global accBuffWidth
   global degreePrecision
-  maxRadius = -1
-  maxDegree = -1  
+  radiusAtMaxVal = -1
+  degreeAtMaxVal = -1
   maxVal = -1
- 
-  #TODO implementation required    
-  return maxRadius, maxDegree, maxVal           
+
+  for degreeIdx in range(0, accBuffWidth):
+      for radiusIdx in range(0, accBuffHeight):
+          currVal = accumulationBuffer[radiusIdx, degreeIdx]
+          if currVal > maxVal:
+            maxVal = currVal
+            radiusAtMaxVal = radiusIdx
+            degreeAtMaxVal = degreeIdx
+            print("new MAX found with " + str(maxVal) + " at radius " + str(radiusAtMaxVal) + " and degree " + str(degreeAtMaxVal))
+
+
+  return radiusAtMaxVal, degreeAtMaxVal, maxVal
               
   
 
@@ -138,7 +163,8 @@ def main(inImgRGB, lineColor, minThresh):
     plot3 = plt.imshow(accumulationBuffer_normalized)   
     plt.show()
   
-    maxRadius, maxDegree, maxVal  = findMaximaInHoughSpace(accumulationBuffer) #TODO define params globally. Thresh relative to max (e.g. 20% of max value in entire accumulation buffer image)
+    maxRadius, maxDegree, maxVal  = findMaximaInHoughSpace(accumulationBuffer)
+    #TODO define params globally. Thresh relative to max (e.g. 20% of max value in entire accumulation buffer image)
 
      # add the lines to the image
     addLineToImg(imgRGB, maxDegree, maxRadius, accBuffHeight, accBuffWidth, lineColor)
@@ -157,7 +183,7 @@ def init(inImgHeight, inImgWidth) :
 
 if __name__ == "__main__":    
     lineColor = (255, 0, 0)    
-    imgInPath = "D:\LEHRE\_BVA2_FortgeschritteneBildverarbeitung_SEmaster\BVA2_NEU\exercises\ex_Hough\houghLines3.png"
+    imgInPath = "houghLines3.png"
     imgRGB = cv2.imread(imgInPath)
     inImgWidth = np.shape(imgRGB)[0]
     inImgHeight = np.shape(imgRGB)[1] 
