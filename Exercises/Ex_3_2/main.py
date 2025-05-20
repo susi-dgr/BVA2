@@ -72,10 +72,10 @@ def test_rld_on_image(img_path):
                 # choose initial guess for A'
                 if init == "random":
                     init_img = np.random.rand(*b_noisy.shape) * 255
-                elif init == "gray127":
-                    init_img = np.full_like(b_noisy, 127)
                 elif init == "observed":
                     init_img = b_noisy.copy()
+                elif init == "gray127":
+                    init_img = np.full_like(b_noisy, 127)
                 elif init == "custom":
                     init_img = custom_a_est.copy()
                 else:
