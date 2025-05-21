@@ -7,7 +7,7 @@ inVideoPath = 0
 
 confidence = 0.7  # for "distance"
 
-patternImgPath = "...."  # TODO: enter path
+patternImgPath = "ich.jpg"
 img2 = cv.imread(patternImgPath, cv.IMREAD_GRAYSCALE)  # trajectory between video stream and pattern as img2
 
 # Initiate SIFT detector

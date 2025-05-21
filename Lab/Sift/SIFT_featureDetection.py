@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-inPath = "C:\\Users\\p21702\\Desktop\\BVA2\\ue_2021\\ex_Localization\\openCV_SIFT\\insightImg.jpg"
+inPath = "insightImg.jpg"
 
 
 def unpackSIFTOctave(kpt):
