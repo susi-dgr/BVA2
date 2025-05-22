@@ -39,27 +39,33 @@ def richardson_lucy(b, k, iterations=30, init_img=None):
 
 
 # Generate example PSF kernels
-def get_kernels(kernel_size):
-    custom_kernel_path = "img/Kernel_3.png"
-    custom_kernel = cv2.imread(custom_kernel_path, cv2.IMREAD_GRAYSCALE)
-
+def get_kernels(kernel_size, custom_kernel_path=None):
     motion_asym = np.array([[0.05, 0.1, 0.15, 0.25, 0.45]], dtype=np.float32)
     motion_asym /= motion_asym.sum()
-    return {
+
+    kernels = {
         "mean": np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2),
         "gaussian": cv2.getGaussianKernel(kernel_size, kernel_size / 3) @
                     cv2.getGaussianKernel(kernel_size, kernel_size / 3).T,
-        "motion_horizontal": np.ones((1, kernel_size)) / kernel_size,
+        "motion_horizontal": np.ones((1, kernel_size), dtype=np.float32) / kernel_size,
         "motion_asymmetric": motion_asym,
-        "custom": custom_kernel / np.sum(custom_kernel),
     }
 
+    # load custom kernel if path is given
+    if custom_kernel_path is not None:
+        custom_kernel = cv2.imread(custom_kernel_path, cv2.IMREAD_GRAYSCALE)
+        if custom_kernel is not None:
+            kernels["custom"] = custom_kernel.astype(np.float32) / np.sum(custom_kernel)
+        else:
+            print(f"Warning: Custom kernel at '{custom_kernel_path}' could not be loaded.")
+
+    return kernels
 
 # Test RLD with various blur kernels, noise levels, and initializations
 def test_rld_on_image(img_path):
     kernel_size = 5
     original = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-    kernels = get_kernels(kernel_size)
+    kernels = get_kernels(kernel_size, "img/custom_kernel.png")
 
     for kernel in kernels.values():
         # show kernels

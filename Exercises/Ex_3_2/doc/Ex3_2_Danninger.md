@@ -24,6 +24,8 @@ a small epsilon value is added to avoid division by zero: `b = b.astype(np.float
 - The kernel `k` is normalized to ensure that the sum of its elements equals 1. 
 This prevents unintended changes in overall image brightness during the deconvolution process: `k = k / k.sum()`
 - The kernel is flipped horizontally and vertically to create `k_mirror`, which is used in the deconvolution process: `k_mirror = k[::-1, ::-1]`
+This has to be done if the kernel is not symmetric, because the deconvolution step requires the mirrored version to 
+correctly reverse the blurring effect.
 
 #### Step1: Convolve current estimate with PSF
 The current estimate of the image is blurred using the same PSF K:
@@ -64,18 +66,35 @@ if delta < 1e-2:
 
 ### PSF Kernel Definition
 With the function `get_kernels(kernel_size)`, the following kernels are generated with `kernel_size` as input:
-//TODO how are they calculated?
 - **Mean Kernel**: A uniform kernel that averages pixel values in a local neighborhood. 
 It divides the sum of all pixel values in the region equally.
 - **Gaussian Kernel**: A Gaussian kernel that weights pixel values based on their distance from the center. 
 The standard deviation kernel_size / 3 ensures the kernel decays smoothly from center to edge.
 - **Motion Kernel**: A kernel that simulates motion blur in a specific direction, in this case horizontal. 
 It spreads intensity evenly across a horizontal line of kernel_size pixels.
+- **Motion Asymmetric Kernel**: A kernel that simulates motion blur with an asymmetric distribution.
+- **Custom Kernel**: A custom kernel that can be provided by the user as an image.
 ```python
-"mean": np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2),
-"gaussian": cv2.getGaussianKernel(kernel_size, kernel_size / 3) @
-            cv2.getGaussianKernel(kernel_size, kernel_size / 3).T,
-"motion_horizontal": np.ones((1, kernel_size)) / kernel_size,
+motion_asym = np.array([[0.05, 0.1, 0.15, 0.25, 0.45]], dtype=np.float32)
+motion_asym /= motion_asym.sum()
+
+kernels = {
+    "mean": np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2),
+    "gaussian": cv2.getGaussianKernel(kernel_size, kernel_size / 3) @
+                cv2.getGaussianKernel(kernel_size, kernel_size / 3).T,
+    "motion_horizontal": np.ones((1, kernel_size), dtype=np.float32) / kernel_size,
+    "motion_asymmetric": motion_asym,
+}
+
+# load custom kernel if path is given
+if custom_kernel_path is not None:
+    custom_kernel = cv2.imread(custom_kernel_path, cv2.IMREAD_GRAYSCALE)
+    if custom_kernel is not None:
+        kernels["custom"] = custom_kernel.astype(np.float32) / np.sum(custom_kernel)
+    else:
+        print(f"Warning: Custom kernel at '{custom_kernel_path}' could not be loaded.")
+
+return kernels
 ```
 
 ### Noise
