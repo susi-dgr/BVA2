@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 # Richardson-Lucy Deconvolution
 def richardson_lucy(b, k, iterations=30, init_img=None):
     if init_img is None:
-        raise ValueError("Initial image (init_img) must be provided.")
+        raise ValueError("Initial image must be provided.")
 
     b = b.astype(np.float32) + 1e-6 # avoid divide-by-zero
     a_est = init_img.astype(np.float32)
     k = k / k.sum() # normalize PSF
-    k_mirror = k[::-1, ::-1] # flip kernel for correction step
+    k_mirror = k[::-1, ::-1] # flip kernel for correction step (needed for asymmetric kernels)
 
     for i in range(iterations):
         print(f"Iteration {i + 1}/{iterations}")
@@ -40,11 +40,18 @@ def richardson_lucy(b, k, iterations=30, init_img=None):
 
 # Generate example PSF kernels
 def get_kernels(kernel_size):
+    custom_kernel_path = "img/Kernel_3.png"
+    custom_kernel = cv2.imread(custom_kernel_path, cv2.IMREAD_GRAYSCALE)
+
+    motion_asym = np.array([[0.05, 0.1, 0.15, 0.25, 0.45]], dtype=np.float32)
+    motion_asym /= motion_asym.sum()
     return {
         "mean": np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2),
         "gaussian": cv2.getGaussianKernel(kernel_size, kernel_size / 3) @
                     cv2.getGaussianKernel(kernel_size, kernel_size / 3).T,
         "motion_horizontal": np.ones((1, kernel_size)) / kernel_size,
+        "motion_asymmetric": motion_asym,
+        "custom": custom_kernel / np.sum(custom_kernel),
     }
 
 
@@ -53,6 +60,12 @@ def test_rld_on_image(img_path):
     kernel_size = 5
     original = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
     kernels = get_kernels(kernel_size)
+
+    for kernel in kernels.values():
+        # show kernels
+        plt.imshow(kernel, cmap='gray')
+        plt.show()
+
     custom_a_est = cv2.imread("img/circle.jpg", cv2.IMREAD_GRAYSCALE)
     noise_levels = [0, 5, 10, 20]
 
