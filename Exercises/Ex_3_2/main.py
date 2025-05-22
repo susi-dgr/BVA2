@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,47 +9,39 @@ def richardson_lucy(b, k, iterations=30, init_img=None):
     if init_img is None:
         raise ValueError("Initial image must be provided.")
 
-    b = b.astype(np.float32) + 1e-6 # avoid divide-by-zero
+    b = b.astype(np.float32) + 1e-6
     a_est = init_img.astype(np.float32)
-    k = k / k.sum() # normalize PSF
-    k_mirror = k[::-1, ::-1] # flip kernel for correction step (needed for asymmetric kernels)
+    k = k / k.sum()
+    k_mirror = k[::-1, ::-1]
 
     for i in range(iterations):
         print(f"Iteration {i + 1}/{iterations}")
-        prev = a_est.copy() # prev estimate for convergence check
+        prev = a_est.copy()
 
-        # Step 1: blur current estimate with PSF
         conv = cv2.filter2D(a_est, -1, k, borderType=cv2.BORDER_REFLECT)
-
-        # Step 2: avoid division by very small numbers
         conv[conv < 1e-6] = 1e-6
-
-        # Step 3: compute ratio image (B / blurred estimate)
         ratio = b / conv
-
-        # Step 4: convolve ratio with flipped PSF and update estimate
         correction = cv2.filter2D(ratio, -1, k_mirror, borderType=cv2.BORDER_REFLECT)
+        correction = np.clip(correction, 0.5, 2.0)
         a_est *= correction
 
-        # Step 5: convergence check to stop early if the change is small
         delta = np.linalg.norm(a_est - prev)
         if delta < 1e-2:
-            print(f"Converged at iteration {i}")
-            break
+            print(f"Converged at iteration {i+1}")
+            return np.clip(a_est, 0, 255).astype(np.uint8), i+1  # return image + iteration
 
-    return np.clip(a_est, 0, 255).astype(np.uint8)
-
+    return np.clip(a_est, 0, 255).astype(np.uint8), iterations  # return image + max iteration if no convergence
 
 # Generate example PSF kernels
 def get_kernels(kernel_size, custom_kernel_path=None):
-    motion_asym = np.array([[0.05, 0.1, 0.15, 0.25, 0.45]], dtype=np.float32)
+    motion_asym = np.random.rand(1, kernel_size).astype(np.float32)
     motion_asym /= motion_asym.sum()
 
     kernels = {
         "mean": np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2),
         "gaussian": cv2.getGaussianKernel(kernel_size, kernel_size / 3) @
                     cv2.getGaussianKernel(kernel_size, kernel_size / 3).T,
-        "motion_horizontal": np.ones((1, kernel_size), dtype=np.float32) / kernel_size,
+        "motion_horizontal": np.ones((1, kernel_size * 2), dtype=np.float32) / (kernel_size * 2),
         "motion_asymmetric": motion_asym,
     }
 
@@ -63,17 +57,23 @@ def get_kernels(kernel_size, custom_kernel_path=None):
 
 # Test RLD with various blur kernels, noise levels, and initializations
 def test_rld_on_image(img_path):
-    kernel_size = 5
+    img_name = os.path.splitext(os.path.basename(img_path))[0]
+    kernel_size = 10
     original = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-    kernels = get_kernels(kernel_size, "img/custom_kernel.png")
+    kernels = get_kernels(kernel_size)
 
     for kernel in kernels.values():
         # show kernels
         plt.imshow(kernel, cmap='gray')
         plt.show()
 
-    custom_a_est = cv2.imread("img/circle.jpg", cv2.IMREAD_GRAYSCALE)
-    noise_levels = [0, 5, 10, 20]
+    custom_a_est = cv2.imread("img/donald.jpg", cv2.IMREAD_GRAYSCALE)
+
+    # Resize custom init to match the current image
+    if custom_a_est.shape != original.shape:
+        custom_a_est = cv2.resize(custom_a_est, (original.shape[1], original.shape[0]), interpolation=cv2.INTER_AREA)
+
+    noise_levels = [0, 5, 10]
 
     for name, K in kernels.items():
         print(f"\n\nTesting kernel: {name}")
@@ -85,7 +85,7 @@ def test_rld_on_image(img_path):
             noise = np.random.normal(0, noise_std, blurred.shape).astype(np.float32)
             b_noisy = np.clip(blurred + noise, 0, 255).astype(np.uint8)
 
-            for init in ["observed", "gray127", "random", "custom"]:
+            for init in ["random", "observed", "gray127", "custom"]:
                 print(f"\nUsing init mode: {init}")
 
                 # choose initial guess for A'
@@ -101,7 +101,7 @@ def test_rld_on_image(img_path):
                     continue
 
                 # Richardson-Lucy Deconvolution
-                result = richardson_lucy(b_noisy, K, iterations=100, init_img=init_img)
+                result, iter = richardson_lucy(b_noisy, K, iterations=30, init_img=init_img)
 
                 # plot results
                 fig, axs = plt.subplots(1, 4, figsize=(20, 6))
@@ -113,18 +113,24 @@ def test_rld_on_image(img_path):
                 axs[1].set_title(f"Blurred + Noise B\n({name}, σ={noise_std})")
                 axs[1].axis('off')
 
-                axs[2].imshow(init_img, cmap='gray')
+                axs[2].imshow(init_img, cmap='gray', vmin=0, vmax=255)
                 axs[2].set_title(f"Initial A′ ({init})")
                 axs[2].axis('off')
 
                 axs[3].imshow(result, cmap='gray')
-                axs[3].set_title(f"Reconstructed A′")
+                axs[3].set_title(f"Reconstructed A′\n(Iterations: {iter})")
                 axs[3].axis('off')
 
-                plt.suptitle(f"RLD Deconvolution – Kernel: {name} – Init: {init}", fontsize=14)
+                plt.suptitle(f"RLD Deconvolution – Kernel: {name} – Initial Guess: {init}", fontsize=14)
                 plt.tight_layout()
+
+                fig_name = f"output/RLD_{img_name}_plot_{name}_noise{noise_std}_init{init}_iter{iter}.png"
+
+                plt.savefig(fig_name)
+                print(f"Saved plot to {fig_name}")
+
                 plt.show()
 
 
 if __name__ == "__main__":
-    test_rld_on_image("img/tripod.png")
+    test_rld_on_image("img/checker.png")
