@@ -32,26 +32,20 @@ The current estimate of the image is blurred using the same PSF K:
 ```python
 conv = cv2.filter2D(a_est, -1, k, borderType=cv2.BORDER_REFLECT)
 ```
-#### Step 2: Avoid division by near-zero values
-To avoid instability in the ratio calculation, small values are clipped, `borderType=cv2.BORDER_REFLECT` is used to 
-handle edge effects during convolution by mirroring the image at the borders. 
-This avoids introducing artificial edges or abrupt transitions that can occur 
-when padding with zeros or constant values. 
+
+#### Step 2: Calculate the ratio
+The observed image is divided by the blurred estimate to get the ratio, to avoid division by zero, 1e-6 is added:
 ```python
-conv[conv < 1e-6] = 1e-6
+ratio = b / (conv + 1e-6)
 ```
 
-#### Step 3: Calculate the ratio
-The observed image is divided by the blurred estimate to get the ratio:
-```python
-ratio = b / conv
-```
-
-#### Step 4: Convolve the ratio with the flipped PSF and update the estimate
-This provides a correction factor and the estimate is updated by element-wise multiplication:
+#### Step 3: Convolve the ratio with the flipped PSF and update the estimate
+This provides a correction factor and the estimate is updated by element-wise multiplication. The estimate is clipped to 
+ensure pixel values remain within valid bounds (0-255):
 ```python
 correction = cv2.filter2D(ratio, -1, k_mirror, borderType=cv2.BORDER_REFLECT)
 a_est *= correction
+a_est = np.clip(a_est, 1e-6, 255)
 ```
 
 #### Step 5: Update the estimate
@@ -60,8 +54,8 @@ the previous estimate is stored before and the difference between the current an
 ```python
 delta = np.linalg.norm(a_est - prev)
 if delta < 1e-2:
-    print(f"Converged at iteration {i}")
-    break
+    print(f"Converged at iteration {i+1}")
+    return np.clip(a_est, 0, 255).astype(np.uint8), i+1
 ```
 
 ### PSF Kernel Definition
@@ -80,10 +74,10 @@ random values.
   motion_asym /= motion_asym.sum()
 
   kernels = {
-      # "mean": np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2),
-      # "gaussian": cv2.getGaussianKernel(kernel_size, kernel_size / 3) @
-      #             cv2.getGaussianKernel(kernel_size, kernel_size / 3).T,
-      # "motion_horizontal": np.ones((1, kernel_size * 2), dtype=np.float32) / (kernel_size * 2),
+      "mean": np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2),
+      "gaussian": cv2.getGaussianKernel(kernel_size, kernel_size / 3) @
+                  cv2.getGaussianKernel(kernel_size, kernel_size / 3).T,
+      "motion_horizontal": np.ones((1, kernel_size * 2), dtype=np.float32) / (kernel_size * 2),
       "motion_asymmetric": motion_asym,
   }
 
@@ -127,7 +121,7 @@ following setup configurations:
 
 ### Results
 #### Kernel: Mean
-##### Noise Level: 0, Iterations: 30
+##### Noise Level: 0
 With this setup the deconvolution works well, the image is restored to a good quality and the license plate is displayed 
 clearly whereas in the blurred image it is not readable. The initial guess does have a big impact on the result.
 This is most prominent in the custom image, Donald Duck is still recognizable in the deconvolve image. The observed 
@@ -139,7 +133,7 @@ are very visible.
 ![Mean, Noise Level: 0, Initial Guess: Gray127](../output/RLD_car_plot_mean_noise0_initgray127_iter30.png)
 ![Mean, Noise Level: 0, Initial Guess: Custom](../output/RLD_car_plot_mean_noise0_initcustom_iter30.png)
 
-##### Noise Level: 10, Iterations: 30
+##### Noise Level: 10
 When introducing noise the result becomes naturally worse, but the algorithm is still able to recover a lot of details.
 ![Mean, Noise Level: 10, Initial Guess: Random](../output/RLD_car_plot_mean_noise10_initrandom_iter30.png)
 ![Mean, Noise Level: 10, Initial Guess: Observed](../output/RLD_car_plot_mean_noise10_initobserved_iter30.png)
@@ -147,7 +141,7 @@ When introducing noise the result becomes naturally worse, but the algorithm is 
 ![Mean, Noise Level: 10, Initial Guess: Custom](../output/RLD_car_plot_mean_noise10_initcustom_iter30.png)
 
 #### Kernel: Gaussian
-##### Noise Level: 0, Iterations: 30
+##### Noise Level: 0
 The blurred effect with the gaussian kernel is a little bit softer since it weights the pixels based on their distance 
 from the center. The deconvolution works well.
 ![Gaussian, Noise Level: 0, Initial Guess: Random](../output/RLD_car_plot_gaussian_noise0_initrandom_iter30.png)
@@ -156,7 +150,7 @@ from the center. The deconvolution works well.
 ![Gaussian, Noise Level: 0, Initial Guess: Custom](../output/RLD_car_plot_gaussian_noise0_initcustom_iter30.png)
 
 #### Kernel: Horizontal Motion
-##### Noise Level: 0, Iterations: 30
+##### Noise Level: 0
 With the horizontal motion kernel, the blur is only applied in the horizontal direction. This means that the vertical 
 lines are blurred stronger, horizontal structures stay more or less intact. 
 This can be best observed in the checkerboard image or at the vertical lines in the car image (e.g. signs). When using the custom image, the ringing artefacts are very visible 
@@ -168,7 +162,7 @@ in the directions of the blur.
 ![Horizontal Motion, Noise Level: 0, Initial Guess: Custom](../output/RLD_car_plot_motion_horizontal_noise0_initcustom_iter30.png)
 
 #### Kernel: Horizontal Motion
-##### Noise Level: 10, Iterations: 30
+##### Noise Level: 10
 The vertical lines are more visible here.
 
 ![Horizontal Motion, Noise Level: 10, Initial Guess: Random](../output/RLD_car_plot_motion_horizontal_noise10_initrandom_iter30.png)
@@ -178,7 +172,7 @@ The vertical lines are more visible here.
 ![Horizontal Motion, Noise Level: 10, Initial Guess: Custom](../output/RLD_car_plot_motion_horizontal_noise10_initcustom_iter30.png)
 
 #### Kernel: Motion Asymmetric
-##### Noise Level: 10, Iterations: 30
+##### Noise Level: 10
 This kernel is used to show that an asymmetric kernel can be used to simulate a more complex motion blur. 
 For this kernel it is import to mirror the kernel in the right direction, otherwise the deconvolution will not work properly.
 

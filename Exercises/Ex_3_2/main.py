@@ -18,15 +18,21 @@ def richardson_lucy(b, k, iterations=30, init_img=None):
         print(f"Iteration {i + 1}/{iterations}")
         prev = a_est.copy()
 
+        # Step 1: blur current estimate with PSF
         conv = cv2.filter2D(a_est, -1, k, borderType=cv2.BORDER_REFLECT)
-        conv[conv < 1e-6] = 1e-6
-        ratio = b / conv
-        correction = cv2.filter2D(ratio, -1, k_mirror, borderType=cv2.BORDER_REFLECT)
-        correction = np.clip(correction, 0.5, 2.0)
-        a_est *= correction
 
+        # Step 2: compute ratio image (B / blurred estimate)
+        ratio = b / (conv + 1e-6)
+
+        # Step 3: convolve ratio with flipped PSF and update estimate
+        correction = cv2.filter2D(ratio, -1, k_mirror, borderType=cv2.BORDER_REFLECT)
+        a_est *= correction
+        a_est = np.clip(a_est, 1e-6, 255)
+
+        # Step 4: convergence check to stop early if the change is small
         delta = np.linalg.norm(a_est - prev)
-        if delta < 1e-2:
+        print(f"Delta: {delta:.4f}")
+        if delta < 1:
             print(f"Converged at iteration {i+1}")
             return np.clip(a_est, 0, 255).astype(np.uint8), i+1  # return image + iteration
 
@@ -101,7 +107,7 @@ def test_rld_on_image(img_path):
                     continue
 
                 # Richardson-Lucy Deconvolution
-                result, iter = richardson_lucy(b_noisy, K, iterations=30, init_img=init_img)
+                result, iteration = richardson_lucy(b_noisy, K, iterations=30, init_img=init_img)
 
                 # plot results
                 fig, axs = plt.subplots(1, 4, figsize=(20, 6))
@@ -118,13 +124,13 @@ def test_rld_on_image(img_path):
                 axs[2].axis('off')
 
                 axs[3].imshow(result, cmap='gray')
-                axs[3].set_title(f"Reconstructed A′\n(Iterations: {iter})")
+                axs[3].set_title(f"Reconstructed A′\n(Iterations: {iteration})")
                 axs[3].axis('off')
 
                 plt.suptitle(f"RLD Deconvolution – Kernel: {name} – Initial Guess: {init}", fontsize=14)
                 plt.tight_layout()
 
-                fig_name = f"output/RLD_{img_name}_plot_{name}_noise{noise_std}_init{init}_iter{iter}.png"
+                fig_name = f"output/RLD_{img_name}_plot_{name}_noise{noise_std}_init{init}_iter{iteration}.png"
 
                 plt.savefig(fig_name)
                 print(f"Saved plot to {fig_name}")
@@ -133,4 +139,4 @@ def test_rld_on_image(img_path):
 
 
 if __name__ == "__main__":
-    test_rld_on_image("img/checker.png")
+    test_rld_on_image("img/car.jpg")
