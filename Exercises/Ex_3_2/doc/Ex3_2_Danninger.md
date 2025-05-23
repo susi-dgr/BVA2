@@ -33,6 +33,8 @@ The current estimate of the image is blurred using the same PSF K:
 conv = cv2.filter2D(a_est, -1, k, borderType=cv2.BORDER_REFLECT)
 ```
 
+<div style="page-break-after: always;"></div>
+
 #### Step 2: Calculate the ratio
 The observed image is divided by the blurred estimate to get the ratio, to avoid division by zero, 1e-6 is added:
 ```python
@@ -57,6 +59,8 @@ if delta < 1e-2:
     print(f"Converged at iteration {i+1}")
     return np.clip(a_est, 0, 255).astype(np.uint8), i+1
 ```
+
+<div style="page-break-after: always;"></div>
 
 ### PSF Kernel Definition
 With the function `get_kernels(kernel_size)`, the following kernels are generated with `kernel_size` as input:
@@ -91,6 +95,8 @@ random values.
 
   return kernels
 ```
+
+<div style="page-break-after: always;"></div>
 
 ### Noise
 For each kernel, a noise is added to the blurred image using different noise levels (standard deviations):
@@ -133,21 +139,31 @@ are very visible.
 ![Mean, Noise Level: 0, Initial Guess: Gray127](../output/RLD_car_plot_mean_noise0_initgray127_iter30.png)
 ![Mean, Noise Level: 0, Initial Guess: Custom](../output/RLD_car_plot_mean_noise0_initcustom_iter30.png)
 
+
+<div style="page-break-after: always;"></div>
+
 ##### Noise Level: 10
-When introducing noise the result becomes naturally worse, but the algorithm is still able to recover a lot of details.
+When introducing noise the result becomes naturally a little bit worse, but the algorithm is still able to recover a lot of details.
 ![Mean, Noise Level: 10, Initial Guess: Random](../output/RLD_car_plot_mean_noise10_initrandom_iter30.png)
 ![Mean, Noise Level: 10, Initial Guess: Observed](../output/RLD_car_plot_mean_noise10_initobserved_iter30.png)
 ![Mean, Noise Level: 10, Initial Guess: Gray127](../output/RLD_car_plot_mean_noise10_initgray127_iter30.png)
 ![Mean, Noise Level: 10, Initial Guess: Custom](../output/RLD_car_plot_mean_noise10_initcustom_iter30.png)
 
+
+<div style="page-break-after: always;"></div>
+
 #### Kernel: Gaussian
 ##### Noise Level: 0
 The blurred effect with the gaussian kernel is a little bit softer since it weights the pixels based on their distance 
-from the center. The deconvolution works well.
+from the center. The deconvolution works well. 
 ![Gaussian, Noise Level: 0, Initial Guess: Random](../output/RLD_car_plot_gaussian_noise0_initrandom_iter30.png)
 ![Gaussian, Noise Level: 0, Initial Guess: Observed](../output/RLD_car_plot_gaussian_noise0_initobserved_iter30.png)
 ![Gaussian, Noise Level: 0, Initial Guess: Gray127](../output/RLD_car_plot_gaussian_noise0_initgray127_iter30.png)
 ![Gaussian, Noise Level: 0, Initial Guess: Custom](../output/RLD_car_plot_gaussian_noise0_initcustom_iter30.png)
+
+Higher Noise Level looks similar, so no additional images are shown here.
+
+<div style="page-break-after: always;"></div>
 
 #### Kernel: Horizontal Motion
 ##### Noise Level: 0
@@ -161,7 +177,9 @@ in the directions of the blur.
 ![Horizontal Motion, Noise Level: 0, Initial Guess: Gray127](../output/RLD_checker_plot_motion_horizontal_noise0_initgray127_iter30.png)
 ![Horizontal Motion, Noise Level: 0, Initial Guess: Custom](../output/RLD_car_plot_motion_horizontal_noise0_initcustom_iter30.png)
 
-#### Kernel: Horizontal Motion
+
+<div style="page-break-after: always;"></div>
+
 ##### Noise Level: 10
 The vertical lines are more visible here.
 
@@ -171,12 +189,15 @@ The vertical lines are more visible here.
 ![Horizontal Motion, Noise Level: 10, Initial Guess: Gray127](../output/RLD_checker_plot_motion_horizontal_noise10_initgray127_iter30.png)
 ![Horizontal Motion, Noise Level: 10, Initial Guess: Custom](../output/RLD_car_plot_motion_horizontal_noise10_initcustom_iter30.png)
 
+<div style="page-break-after: always;"></div>
+
 #### Kernel: Motion Asymmetric
-##### Noise Level: 10
+##### Noise Level: 0
 This kernel is used to show that an asymmetric kernel can be used to simulate a more complex motion blur. 
 For this kernel it is import to mirror the kernel in the right direction, otherwise the deconvolution will not work properly.
+![Motion Asymmetric, Noise Level: 0, Initial Guess: Random](../output/RLD_car_plot_motion_asymmetric_noise0_initrandom_iter30.png)
+![Motion Asymmetric, Noise Level: 0, Initial Guess: Observed](../output/RLD_car_plot_motion_asymmetric_noise0_initobserved_iter30.png)
+![Motion Asymmetric, Noise Level: 0, Initial Guess: Gray127](../output/RLD_car_plot_motion_asymmetric_noise0_initgray127_iter30.png)
+![Horizontal Motion, Noise Level: 0, Initial Guess: Custom](../output/RLD_car_plot_motion_asymmetric_noise0_initcustom_iter30.png)
 
-![Motion Asymmetric, Noise Level: 0, Initial Guess: Random](../output/RLD_car_plot_motion_asymmetric_noise10_initrandom_iter30.png)
-![Motion Asymmetric, Noise Level: 0, Initial Guess: Observed](../output/RLD_car_plot_motion_asymmetric_noise10_initobserved_iter30.png)
-![Motion Asymmetric, Noise Level: 0, Initial Guess: Gray127](../output/RLD_car_plot_motion_asymmetric_noise10_initgray127_iter30.png)
-![Horizontal Motion, Noise Level: 10, Initial Guess: Custom](../output/RLD_car_plot_motion_asymmetric_noise10_initcustom_iter30.png)
+Higher Noise Level looks similar, so no additional images are shown here.
